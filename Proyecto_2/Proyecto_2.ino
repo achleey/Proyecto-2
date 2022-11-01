@@ -9,6 +9,7 @@
 // LIBRERIAS
 //***************************************************************************************************************************************
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <TM4C123GH6PM.h>
 
@@ -28,11 +29,13 @@
 #include "lcd_registers.h"
 
 
+//SD
 #include <SPI.h>
 #include <SD.h>
 
 //DEFINES
 //***************************************************************************************************************************************
+//LCD
 #define LCD_RST PD_0
 #define LCD_CS PD_1
 #define LCD_RS PD_2
@@ -67,45 +70,82 @@ void LCD_Print(String text, int x, int y, int fontSize, int color, int backgroun
 void LCD_Bitmap(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned char bitmap[]);
 void LCD_Sprite(int x, int y, int width, int height, unsigned char bitmap[], int columns, int index, char flip, char offset);
 
-void Menu();                        //Función encargada de los gráficos para menú de inicio
-void sw1();                         //Funcion que inicia el juego
-void sw2();                         //Funcion que permite ver el leaderboard
-void ObtenerImagen(char documento[]);
-int AS_HE(int a);
+void Menu();                                //Funcion encargada de los gráficos para menú de inicio
+
+void sw1();                                 //Funcion que inicia el juego
+void sw2();                                 //Funcion que permite ver el leaderboard
+
+void ObtenerImagen(char documento[]);       //Funcion para extraer imagen de memoria SD
+int AS_HE(int a);                           //Funcion para conversión de archivos a hex, graficos
+
+void drawPlayer1(void);                     //Funcion para dibujar jugador 1
+void drawPlayer2(void);                     //Funcion para dibujar jugador 2
+
+void drawField();                           //Funcion para dibujar net
+void drawBall();
+void endGame();
 
 //VARIABLES
 //***************************************************************************************************************************************
+
+//Menu
+int M;                              //Variable para saber en que parte del menú se está
+
+//Seleccion de personajes
 int contador;                       //Variable usada para menu de personajes
+int PJ1 = 0;                        //Bandera para personaje seleccionado jugador 1
+int PJ2 = 0;                        //Bandera para personaje seleccionado jugador 2
+String P;                           //Variable de control para asegurar que el personaje se haya seleccionado correctamente
+String P2;                          //Variable de control para asegurar que el personaje se haya seleccionado correctamente
+int Pelegido1 = 0;                  //Variable para saber si ya se eligió un jugador 1
+int Pelegido2 = 0;                  //Variable para saber si ya se eligió un jugador 2
+
+//Debounce
 int buttonState;                    //Estado actual del boton
 int lastButtonState = LOW;          //Estado anterior del boton
 long lastDebounceTime = 0;          //Última vez que el pin fue toggled
 long debounceDelay = 50;            //Tiempo de debounce
-int PJ1 = 0;                        //Bandera para personaje seleccionado jugador 1
-String P;
-String P2;
-int PJ2 = 0;                        //Bandera para personaje seleccionado jugador 2
-int M;                              //Variable para saber en que parte del menú se está
-int Pelegido1 = 0;                  //Variable para saber si ya se eligió un jugador 1
-int Pelegido2 = 0;                  //Variable para saber si ya se eligió un jugador 2
+
+//Dibujar jugador
+String Player1;                     //Variable que contiene la posicion del jugador 1
+String Player2;                     //Variable que contiene la posicion del jugador 2
+int x1 = 157;                       //Variable que define la posicion inicial del jugador 1
+int x2 = 157;                       //Variable que define la posicion inicial del jugador 2
+
+int Points1 = 0;                    //Variable de control para puntos de jugador 1
+int Points2 = 0;                    //Variable de control para puntos de jugador 2
+int gameLoops = 0;                  //Variable para controlar los loops del juego
+int gameSpeed = 10;                 //Variable para controlar la velocidad de la pelota
+
+int x = 10;                         //Variable para indicar origen en x de pelota al iniciar el juego
+int y = 10;                         //Variable para indicar origen en y de pelota al iniciar el juego
+int speedX = 2;                     //Cambio en x al dibujar la pelota
+int speedY = 3;                     //Cambio en y al dibujar la pelota
+
+int victoria1 = 0;                  //Variable para contar victorias de jugador 1
+int victoria2 = 0;                  //Variable para contar victorias de jugador 2
+
 
 // SETUP
 //***************************************************************************************************************************************
 void setup() {
 
   // Inicializacion de la pantalla
-  //***************************************************************************************************************************************
   SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
   Serial.begin(9600);
+
+  // Controles
+  Serial2.begin(9600);
+  Serial3.begin(9600);
+
   GPIOPadConfigSet(GPIO_PORTB_BASE, 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7, GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD_WPU);  // Configuración del puerto (utiliza TivaWare)
   Serial.println("Inicio");
 
   // Inicialización de la pantalla
-  //***************************************************************************************************************************************
   LCD_Init();
   LCD_Clear(0x0000);
 
   //Pushbuttons
-  //***************************************************************************************************************************************
   pinMode(SW1, INPUT_PULLUP);
   pinMode(SW2, INPUT_PULLUP);
 
@@ -114,7 +154,6 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(SW2), sw2, RISING);
 
   //SD
-  //***************************************************************************************************************************************
   SPI.setModule(0);
 
   Serial.print("Initializing SD card...");
@@ -127,43 +166,53 @@ void setup() {
   Serial.println("initialization done.");
 
   //Imagen de inicio
-  //***************************************************************************************************************************************
   LCD_Clear(0xFFFF);
   ObtenerImagen("Fondo.txt");
 
   //Pantalla de Menu
-  //***************************************************************************************************************************************
-  delay(50);
+  delay(25);
   Menu();
-
-  // Controles
-  //***************************************************************************************************************************************
-  Serial2.begin(9600);
-  Serial3.begin(9600);
 }
 
 void loop() {
 
-  if (Pelegido1 == 2 && Pelegido2 == 1) {
-    Menu();
-    Pelegido1 = 0;
-    Pelegido2 = 0;
-    M = 0;
-    //LCD_Print(P, (320 / 2) - 40, (240 / 8) - 8 , 2, 0xCA2E, 0x0000);
-    //LCD_Print(P2, (320 / 2) - 32, (240 / 4) - 8  , 2, 0x659C, 0x0000);
+  if (Pelegido1 == 2 && Pelegido2 == 1) {   //Si ya se eligieron los avatars para los jugadores, entonces empezar juego
+    while (Points1 <= 5 && Points2 <= 5) {
+      gameLoops += 1;
+      if (gameSpeed <= 1) {
+        gameSpeed = 1;
+      } else if (gameSpeed > 10) {
+        gameSpeed = 10;
+      } else {
+        gameSpeed = 2000 / gameLoops;
+      }
+
+      while (Serial2.available()) {
+        delay(8);
+        Player1 = Serial2.read();
+        Serial.print(Player1);
+      }
+
+      while (Serial3.available()) {
+        delay(8);
+        Player2 = Serial3.read();
+        Serial.print(Player2);
+      }
+
+      drawPlayer1();
+      drawPlayer2();
+
+      drawField();
+
+      drawBall();
+
+      LCD_Print((String)Points1, (320 / 2) - 20, (240 / 8) - 16 , 2, 0xCA2E, 0x0000);
+      LCD_Print((String)Points2, (320 / 2) + 20, (240 / 8) - 16 , 2, 0xCA2E, 0x0000);
+
+      
+    }
+    endGame();
   }
-
-  if (Serial2.available()) {
-
-    int inByte = Serial2.read();
-    Serial.write(inByte);
-  }
-
-  if (Serial3.available()) {
-    int inByte2 = Serial3.read();
-    Serial.write(inByte2);
-  }
-
 }
 
 
@@ -318,7 +367,7 @@ void sw1() {
 }
 
 //***************************************************************************************************************************************
-// Función para: mostrar leaderboard o para elegir personaje
+// Función para: mostrar leaderboard/para elegir personaje
 //***************************************************************************************************************************************
 
 void sw2() {
@@ -327,26 +376,32 @@ void sw2() {
     if (Pelegido1 == 0) {
       Pelegido1 = 1;
       LCD_Clear(0x0000);
-      P = (String)PJ1;
-      LCD_Print(P, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
+      //      P = (String)PJ1;
+      //      LCD_Print(P, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
       SW2 == LOW;
     }
     if (Pelegido1 == 2 && Pelegido2 == 0) {
       Pelegido2 = 1;
       LCD_Clear(0x0000);
-      P2 = (String)PJ2;
-      LCD_Print(P2, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
+      //      P2 = (String)PJ2;
+      //      LCD_Print(P2, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
       SW2 == LOW;
     }
+  }else if (M == 2){
+    Menu();
+    M = 0;
   } else {
+    M = 2;
     LCD_Clear(0x0000);
     Rect((320 / 2) - 100, (240 / 8) - 10, 200, 20, 0xD67D);
     String Leaderboardtitle = "LEADERBOARD";
     LCD_Print(Leaderboardtitle, (320 / 2) - 88, (240 / 8) - 8 , 2, 0xCA2E, 0x0000);
     String P1leaderboard = "Jugador 1: ";
     LCD_Print(P1leaderboard, (320 / 4) - 44, (240 / 2 ) - 36   , 2, 0x659C, 0x0000);
+    LCD_Print((String)victoria1, 250, (240/2)-36, 2, 0x659C, 0x0000);
     String P2leaderboard = "Jugador 2: ";
     LCD_Print(P2leaderboard, (320 / 4) - 44, (240 / 2 ) + 36   , 2, 0x659C, 0x0000);
+    LCD_Print((String)victoria2, 250, (240/2)+36, 2, 0x659C, 0x0000);
   }
 
 }
@@ -431,6 +486,135 @@ int AS_HE(int a) {
   }
 }
 
+//***************************************************************************************************************************************
+// Función para dibujar jugador 1
+//***************************************************************************************************************************************
+void drawPlayer1(void) {
+
+  if (Player1 == "76") {
+    FillRect(0, 5, x1, 5, 0x0);
+    FillRect(x1--, 5, 30, 5, 0xFFFF);
+    FillRect(x1 + 30, 5, 20, 5, 0x0);
+
+    if (x1 < 0) {
+      x1 = 0;
+    }
+  } else if (Player1 == "82") {
+    FillRect(x1 - 30, 5, 20, 5, 0x0);
+    FillRect(x1++, 5, 30, 5, 0xFFFF);
+    FillRect(290, 5, x1, 5, 0x0);
+
+    if (x1 > 290) {
+      x1 = 290;
+    }
+  }
+}
+
+//***************************************************************************************************************************************
+// Función para dibujar jugador 2
+//***************************************************************************************************************************************
+void drawPlayer2(void) {
+
+  if (Player2 == "76") {
+    FillRect(0, 225, x2, 5, 0x0);
+    FillRect(x2--, 225, 30, 5, 0xFFFF);
+    FillRect(x2 + 30, 225, 20, 5, 0x0);
+
+    if (x2 < 0) {
+      x2 = 0;
+    }
+  } else if (Player2 == "82") {
+    FillRect(x2 - 30, 225, 20, 5, 0x0);
+    FillRect(x2++, 225, 30, 5, 0xFFFF);
+    FillRect(290, 225, x2, 5, 0x0);
+
+    if (x2 > 290) {
+      x2 = 290;
+    }
+  }
+}
+
+//***************************************************************************************************************************************
+// Función para dibujar net
+//***************************************************************************************************************************************
+void drawField() {
+  FillRect(0, (240 / 2) - 5, 320, 5, 0xFFFFF);
+}
+
+//***************************************************************************************************************************************
+// Función para dibujar pelota
+//***************************************************************************************************************************************
+void drawBall() {
+  if (gameLoops % gameSpeed == 0) {
+
+    FillRect(x, y, 5, 5, 0x0);
+    x += speedX;
+    y += speedY;
+
+    FillRect(x, y, 5, 5, 0xFFFF);
+
+    //Colisiones con bordes
+    if (x <= 0 || x >= 315) {
+      speedX = -speedX;
+    }
+
+    //Colisiones con raquetas
+    if (y <= 10 || y >= 220) {
+      speedY = -speedY;
+
+      if (x >= x1 && x <= x1 + 10) {
+        speedX -= 1;
+      } else if (x >= x1 + 10 && x <= x1 + 20) {
+        speedX = 1;
+      } else if (x >= x1 + 20 && x <= x1 + 30) {
+        speedX += 1;
+      } else {
+
+        if (y <= 10) {
+          Points2 += 1;
+        }
+      }
+
+      if (x >= x2 && x <= x2 + 10) {
+        speedX -= 1;
+      } else if (x >= x2 + 10 && x <= x2 + 20) {
+        speedX = 1;
+      } else if (x >= x2 + 20 && x <= x2 + 30) {
+        speedX += 1;
+      } else {
+        if (y >= 220) {
+          Points1 += 1;
+        }
+      }
+    }
+  }
+}
+
+//***************************************************************************************************************************************
+// Función para terminar juego
+//***************************************************************************************************************************************
+void endGame() {
+  
+  if (Points1 > 5) {
+    victoria1 +=1;
+    LCD_Clear(0x0000);
+    String p1Wins = "El jugador 1 gana";
+    LCD_Print(p1Wins, (320 / 2) - 144, (240 / 2 ) - 8   , 2, 0x659C, 0x0000);
+  }
+  if (Points2 > 5) {
+    victoria2 +=1;
+    LCD_Clear(0x0000);
+    String p2Wins = "El jugador 2 gana";
+    LCD_Print(p2Wins, (320 / 2) - 144, (240 / 2 ) - 8   , 2, 0x659C, 0x0000);
+  }
+  
+  Points2 = 0;
+  Points1 = 0;
+  Pelegido1 = 0;
+  Pelegido2 = 0;
+  M = 2;
+  
+}
 
 //***************************************************************************************************************************************
 // Función para inicializar LCD
