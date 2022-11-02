@@ -118,9 +118,9 @@ int gameLoops = 0;                  //Variable para controlar los loops del jueg
 int gameSpeed = 10;                 //Variable para controlar la velocidad de la pelota
 
 int x = 10;                         //Variable para indicar origen en x de pelota al iniciar el juego
-int y = 10;                         //Variable para indicar origen en y de pelota al iniciar el juego
-int speedX = 2;                     //Cambio en x al dibujar la pelota
-int speedY = 3;                     //Cambio en y al dibujar la pelota
+int y = 50;                         //Variable para indicar origen en y de pelota al iniciar el juego
+int speedX = 8;                     //Cambio en x al dibujar la pelota
+int speedY = 9;                     //Cambio en y al dibujar la pelota
 
 int victoria1 = 0;                  //Variable para contar victorias de jugador 1
 int victoria2 = 0;                  //Variable para contar victorias de jugador 2
@@ -206,10 +206,10 @@ void loop() {
 
       drawBall();
 
-      LCD_Print((String)Points1, (320 / 2) - 20, (240 / 8) - 16 , 2, 0xCA2E, 0x0000);
-      LCD_Print((String)Points2, (320 / 2) + 20, (240 / 8) - 16 , 2, 0xCA2E, 0x0000);
+      LCD_Print((String)Points1, 20, (240 / 2) - 40 , 2, 0xCA2E, 0x0000);
+      LCD_Print((String)Points2, 20, (240 / 2) + 16 , 2, 0xCA2E, 0x0000);
 
-      
+
     }
     endGame();
   }
@@ -268,7 +268,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 1:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 39, (240 / 2) - 60, 78, 120, (unsigned char*)personaje1);
+            LCD_Bitmap((320 / 2) - 51, (240 / 2) - 65, 103, 127, (unsigned char*)personaje1);
             PJ1 = 1;
             if (SW2 == HIGH) {
               sw2();
@@ -278,7 +278,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 1:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 42, (240 / 2) - 60, 85, 120, (unsigned char*)personaje2);
+            LCD_Bitmap((320 / 2) - 64, (240 / 2) - 65, 129, 127, (unsigned char*)personaje2);
             PJ1 = 2;
             if (SW2 == HIGH) {
               sw2();
@@ -288,7 +288,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 1:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 35, (240 / 2) - 60, 71, 120, (unsigned char*)personaje3);
+            LCD_Bitmap((320 / 2) - 52, (240 / 2) - 65, 104, 127, (unsigned char*)personaje3);
             PJ1 = 3;
             if (SW2 == HIGH) {
               sw2();
@@ -328,7 +328,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 2:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 39, (240 / 2) - 60, 78, 120, (unsigned char*)personaje1);
+            LCD_Bitmap((320 / 2) - 51, (240 / 2) - 65, 103, 127, (unsigned char*)personaje1);
             PJ2 = 1;
             if (SW2 == HIGH) {
               sw2();
@@ -338,7 +338,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 2:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 42, (240 / 2) - 60, 85, 120, (unsigned char*)personaje2);
+            LCD_Bitmap((320 / 2) - 64, (240 / 2) - 65, 129, 127, (unsigned char*)personaje2);
             PJ2 = 2;
             if (SW2 == HIGH) {
               sw2();
@@ -348,7 +348,7 @@ void sw1() {
             LCD_Clear(0x0000);
             String Menupersonajes = "Jugador 2:";
             LCD_Print(Menupersonajes, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
-            LCD_Bitmap((320 / 2) - 35, (240 / 2) - 60, 71, 120, (unsigned char*)personaje3);
+            LCD_Bitmap((320 / 2) - 52, (240 / 2) - 65, 104, 127, (unsigned char*)personaje3);
             PJ2 = 3;
             if (SW2 == HIGH) {
               sw2();
@@ -387,7 +387,7 @@ void sw2() {
       //      LCD_Print(P2, (320 / 2) - 80, (240 / 10), 2, 0xD67D, 0x0000);
       SW2 == LOW;
     }
-  }else if (M == 2){
+  } else if (M == 2) {
     Menu();
     M = 0;
   } else {
@@ -398,10 +398,10 @@ void sw2() {
     LCD_Print(Leaderboardtitle, (320 / 2) - 88, (240 / 8) - 8 , 2, 0xCA2E, 0x0000);
     String P1leaderboard = "Jugador 1: ";
     LCD_Print(P1leaderboard, (320 / 4) - 44, (240 / 2 ) - 36   , 2, 0x659C, 0x0000);
-    LCD_Print((String)victoria1, 250, (240/2)-36, 2, 0x659C, 0x0000);
+    LCD_Print((String)victoria1, 250, (240 / 2) - 36, 2, 0x659C, 0x0000);
     String P2leaderboard = "Jugador 2: ";
     LCD_Print(P2leaderboard, (320 / 4) - 44, (240 / 2 ) + 36   , 2, 0x659C, 0x0000);
-    LCD_Print((String)victoria2, 250, (240/2)+36, 2, 0x659C, 0x0000);
+    LCD_Print((String)victoria2, 250, (240 / 2) + 36, 2, 0x659C, 0x0000);
   }
 
 }
@@ -491,22 +491,89 @@ int AS_HE(int a) {
 //***************************************************************************************************************************************
 void drawPlayer1(void) {
 
-  if (Player1 == "76") {
-    FillRect(0, 5, x1, 5, 0x0);
-    FillRect(x1--, 5, 30, 5, 0xFFFF);
-    FillRect(x1 + 30, 5, 20, 5, 0x0);
+  if (PJ1 == 1) {
 
-    if (x1 < 0) {
-      x1 = 0;
-    }
-  } else if (Player1 == "82") {
-    FillRect(x1 - 30, 5, 20, 5, 0x0);
-    FillRect(x1++, 5, 30, 5, 0xFFFF);
-    FillRect(290, 5, x1, 5, 0x0);
+    if (Player1 == "76") {
 
-    if (x1 > 290) {
-      x1 = 290;
+      FillRect(0, 5, x1, 42, 0x0);
+      //FillRect(0, 5, x1, 5, 0x0);
+      LCD_Bitmap(x1--, 5, 65, 42, (unsigned char*)Ximena1);
+      //FillRect(x1--, 5, 30, 5, 0xFFFF);
+      FillRect(x1+65, 5, 55, 42, 0x0);
+      //FillRect(x1 + 30, 5, 20, 5, 0x0);
+
+      if (x1 < 0) {
+        x1 = 0;
+      }
+    } else if (Player1 == "82") {
+
+      FillRect(x1-65, 5, 55, 42, 0x0);
+      //FillRect(x1 - 30, 5, 20, 5, 0x0);
+      LCD_Bitmap(x1++, 5, 65, 42, (unsigned char*)Ximena1);
+      //FillRect(x1++, 5, 30, 5, 0xFFFF);
+      FillRect(255+65, 5, x1, 42, 0x0);
+      //FillRect(290, 5, x1, 5, 0x0);
+
+      if (x1 > 255) {
+        x1 = 255;
+      }
     }
+  } else if (PJ1 == 2) {
+
+    if (Player1 == "76") {
+
+      FillRect(0,5,x1,42,0x0);
+      //FillRect(0, 5, x1, 5, 0x0);
+      LCD_Bitmap(x1--, 5, 56, 42, (unsigned char*)Ashley1);
+      //FillRect(x1--, 5, 30, 5, 0xF8E0);
+      FillRect(x1+56, 5, 46, 42, 0x0);
+      //FillRect(x1 + 30, 5, 20, 5, 0x0);
+
+      if (x1 < 0) {
+        x1 = 0;
+      }
+    } else if (Player1 == "82") {
+
+      FillRect(x1-56, 5, 46, 42, 0x0);
+      //FillRect(x1 - 30, 5, 20, 5, 0x0);
+      LCD_Bitmap(x1++, 5, 56, 42, (unsigned char*)Ashley1);
+      //FillRect(x1++, 5, 30, 5, 0xF8E0);
+      FillRect(264+56, 5, x1, 42, 0x0);
+      //FillRect(290, 5, x1, 5, 0x0);
+
+      if (x1 > 264) {
+        x1 = 264;
+      }
+    }
+
+  } else if (PJ1 == 3) {
+
+    if (Player1 == "76") {
+
+      FillRect(0,5,x1,42,0x0);
+      //FillRect(0, 5, x1, 5, 0x0);
+      LCD_Bitmap(x1--, 5, 64, 42, (unsigned char*)Jose1);
+      //FillRect(x1--, 5, 30, 5, 0x001F);
+      FillRect(x1+64, 5, 54, 42, 0x0);
+      //FillRect(x1 + 30, 5, 20, 5, 0x0);
+
+      if (x1 < 0) {
+        x1 = 0;
+      }
+    } else if (Player1 == "82") {
+
+      FillRect(x1-64, 5, 54, 42, 0x0);
+      //FillRect(x1 - 30, 5, 20, 5, 0x0);
+      LCD_Bitmap(x1++, 5, 64, 42, (unsigned char*)Jose1);
+      //FillRect(x1++, 5, 30, 5, 0x001F);
+      FillRect(256+64, 5, x1, 42, 0x0);
+      //FillRect(290, 5, x1, 5, 0x0);
+
+      if (x1 > 256) {
+        x1 = 256;
+      }
+    }
+
   }
 }
 
@@ -515,23 +582,90 @@ void drawPlayer1(void) {
 //***************************************************************************************************************************************
 void drawPlayer2(void) {
 
+if (PJ2 == 1){
+
   if (Player2 == "76") {
-    FillRect(0, 225, x2, 5, 0x0);
-    FillRect(x2--, 225, 30, 5, 0xFFFF);
-    FillRect(x2 + 30, 225, 20, 5, 0x0);
+
+    FillRect(0,188,x2, 42, 0x0);
+    //FillRect(0, 225, x2, 5, 0x0);
+    LCD_Bitmap(x2--, 188, 55, 42, (unsigned char*)Ximena2);
+    //FillRect(x2--, 225, 30, 5, 0xFFFF);
+    FillRect(x2 + 55, 188, 45, 42, 0x0);
+    //FillRect(x2 + 30, 225, 20, 5, 0x0);
 
     if (x2 < 0) {
       x2 = 0;
     }
   } else if (Player2 == "82") {
-    FillRect(x2 - 30, 225, 20, 5, 0x0);
-    FillRect(x2++, 225, 30, 5, 0xFFFF);
-    FillRect(290, 225, x2, 5, 0x0);
 
-    if (x2 > 290) {
-      x2 = 290;
+    FillRect(x2-55, 188, 45, 42, 0x0);
+    //FillRect(x2 - 30, 225, 20, 5, 0x0);
+    LCD_Bitmap(x2++, 188, 55, 42, (unsigned char*)Ximena2);
+    //FillRect(x2++, 225, 30, 5, 0xFFFF);
+    FillRect(265+55, 188, x2, 42, 0x0);
+    //FillRect(290, 225, x2, 5, 0x0);
+
+    if (x2 > 265) {
+      x2 = 265;
     }
   }
+} else if (PJ2 == 2){
+
+if (Player2 == "76") {
+
+    FillRect(0,188,x2,42,0x0);
+    //FillRect(0, 225, x2, 5, 0x0);
+    LCD_Bitmap(x2--,188,57,42, (unsigned char*)Ashley2);
+    //FillRect(x2--, 225, 30, 5, 0xF8E0);
+    FillRect(x2+57, 188, 47, 42, 0x0);
+    //FillRect(x2 + 30, 225, 20, 5, 0x0);
+
+    if (x2 < 0) {
+      x2 = 0;
+    }
+  } else if (Player2 == "82") {
+
+    FillRect(x2-57, 188, 47, 42, 0x0);
+    //FillRect(x2 - 30, 225, 20, 5, 0x0);
+    LCD_Bitmap(x2++,188,57, 42, (unsigned char*)Ashley2);
+    //FillRect(x2++, 225, 30, 5, 0xF8E0);
+    FillRect(263+57, 188,x2,42,0x0);
+    //FillRect(290, 225, x2, 5, 0x0);
+
+    if (x2 > 263) {
+      x2 = 263;
+    }
+  }
+  
+  } else if (PJ2 == 3) {
+
+    if (Player2 == "76") {
+
+    FillRect(0,188, x2,42, 0x0);
+    //FillRect(0, 225, x2, 5, 0x0);
+    LCD_Bitmap(x2--, 188, 55, 42, (unsigned char*)Jose2);
+    //FillRect(x2--, 225, 30, 5, 0x001F);
+    FillRect(x2+55, 188, 45, 42, 0x0);
+    //FillRect(x2 + 30, 225, 20, 5, 0x0);
+
+    if (x2 < 0) {
+      x2 = 0;
+    }
+  } else if (Player2 == "82") {
+
+    FillRect(x2-55, 188, 45, 42, 0x0);
+    //FillRect(x2 - 30, 225, 20, 5, 0x0);
+    LCD_Bitmap(x2++, 188, 55, 42, (unsigned char*)Jose2);
+    //FillRect(x2++, 225, 30, 5, 0x001F);
+    FillRect(265+55, 188,x2, 42, 0x0);
+    //FillRect(290, 225, x2, 5, 0x0);
+
+    if (x2 > 265) {
+      x2 = 265;
+    }
+  }
+    
+    }
 }
 
 //***************************************************************************************************************************************
@@ -559,30 +693,30 @@ void drawBall() {
     }
 
     //Colisiones con raquetas
-    if (y <= 10 || y >= 220) {
+    if (y <= 46 || y >= 185) {
       speedY = -speedY;
 
-      if (x >= x1 && x <= x1 + 10) {
+      if (x >= x1 && x <= x1 + 25) {
         speedX -= 1;
-      } else if (x >= x1 + 10 && x <= x1 + 20) {
+      } else if (x >= x1 + 25 && x <= x1 + 35) {
         speedX = 1;
-      } else if (x >= x1 + 20 && x <= x1 + 30) {
+      } else if (x >= x1 + 35 && x <= x1 + 45) {
         speedX += 1;
       } else {
 
-        if (y <= 10) {
+        if (y <= 46) {
           Points2 += 1;
         }
       }
 
-      if (x >= x2 && x <= x2 + 10) {
+      if (x >= x2 && x <= x2 + 25) {
         speedX -= 1;
-      } else if (x >= x2 + 10 && x <= x2 + 20) {
+      } else if (x >= x2 + 25 && x <= x2 + 35) {
         speedX = 1;
-      } else if (x >= x2 + 20 && x <= x2 + 30) {
+      } else if (x >= x2 + 35 && x <= x2 + 45) {
         speedX += 1;
       } else {
-        if (y >= 220) {
+        if (y >= 185) {
           Points1 += 1;
         }
       }
@@ -594,26 +728,26 @@ void drawBall() {
 // Función para terminar juego
 //***************************************************************************************************************************************
 void endGame() {
-  
+
   if (Points1 > 5) {
-    victoria1 +=1;
+    victoria1 += 1;
     LCD_Clear(0x0000);
     String p1Wins = "El jugador 1 gana";
     LCD_Print(p1Wins, (320 / 2) - 144, (240 / 2 ) - 8   , 2, 0x659C, 0x0000);
   }
   if (Points2 > 5) {
-    victoria2 +=1;
+    victoria2 += 1;
     LCD_Clear(0x0000);
     String p2Wins = "El jugador 2 gana";
     LCD_Print(p2Wins, (320 / 2) - 144, (240 / 2 ) - 8   , 2, 0x659C, 0x0000);
   }
-  
+
   Points2 = 0;
   Points1 = 0;
   Pelegido1 = 0;
   Pelegido2 = 0;
   M = 2;
-  
+
 }
 
 //***************************************************************************************************************************************
